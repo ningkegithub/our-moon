@@ -18,10 +18,10 @@
   body{
     margin:0; color:var(--ink); font-family:var(--sans);
     background:linear-gradient(180deg,var(--bg0) 0%,var(--bg1) 45%,var(--bg2) 100%);
-    min-height:100svh; overflow-x:hidden;
+    min-height:100vh; min-height:100dvh; overflow-x:hidden;
   }
   #stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
-  section{position:relative; z-index:1; min-height:100svh; display:flex; flex-direction:column;
+  section{position:relative; z-index:1; min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
     align-items:center; justify-content:center; padding:64px 22px 56px; text-align:center;}
   .kicker{font-size:12px; letter-spacing:.5em; text-indent:.5em; color:var(--ink-faint); margin-bottom:18px;}
   h1,h2{font-family:var(--serif); font-weight:600; margin:0;}
@@ -76,6 +76,14 @@
   .pbar i{display:block; height:100%; width:0; border-radius:2px;
     background:linear-gradient(90deg,var(--gold),#f6e3ae); transition:width .4s ease;}
 
+  /* ---------- 手机竖屏适配:让照片+翻页码+按钮一屏放下 ---------- */
+  @media (max-width:640px){
+    section{padding:44px 18px 40px;}
+    .g-head p{margin-bottom:18px;}
+    .g-nav{margin-top:16px;}
+    .slide img{max-height:max(220px, calc(100vh - 380px)); max-height:max(220px, calc(100dvh - 380px));}
+  }
+
   /* ---------- game ---------- */
   #game h2{font-size:26px; letter-spacing:.24em; text-indent:.24em; margin-bottom:10px;}
   #game .rule{color:var(--ink-dim); font-size:13px; letter-spacing:.1em; margin:0 0 24px; line-height:1.9;}
@@ -122,7 +130,7 @@
     font-family:var(--sans);}
 
   /* ---------- music ---------- */
-  #musicBtn{position:fixed; right:18px; bottom:22px; z-index:60; width:52px; height:52px;
+  #musicBtn{position:fixed; right:18px; bottom:22px; bottom:calc(22px + env(safe-area-inset-bottom)); z-index:60; width:52px; height:52px;
     border-radius:50%; border:1px solid var(--gold-soft); background:rgba(10,14,26,.72);
     color:var(--ink); font-size:22px; cursor:pointer; backdrop-filter:blur(6px);
     box-shadow:0 4px 18px rgba(0,0,0,.45);}
@@ -136,7 +144,7 @@
   #viewer{position:fixed; inset:0; z-index:100; display:none; flex-direction:column;
     align-items:center; justify-content:center; background:rgba(2,4,12,.94); cursor:pointer;}
   #viewer.open{display:flex;}
-  #viewerImg{max-width:100vw; max-height:80vh; object-fit:contain;}
+  #viewerImg{max-width:100vw; max-height:80vh; max-height:80dvh; object-fit:contain;}
   .viewer-cap{margin-top:14px; text-align:center;}
   .viewer-cap .when{font-size:12px; letter-spacing:.3em; color:var(--gold); margin-bottom:6px;}
   .viewer-cap .what{font-size:15px; color:var(--ink); letter-spacing:.08em;}
@@ -162,8 +170,7 @@
 </style>
 </head>
 <body>
-<audio id="bgm" loop preload="auto">
-  <source src="music/bgm.mp3" type="audio/mpeg">
+<audio id="bgm" loop preload="auto" playsinline>
   <source src="music/default.mp3" type="audio/mpeg">
 </audio>
 <button id="musicBtn" aria-label="音乐开关" style="display:none">🎵</button>
