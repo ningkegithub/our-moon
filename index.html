@@ -532,19 +532,32 @@ function finish(){
 }
 /* ---------- 背景音乐 ---------- */
 (function(){
-  var audio=document.getElementById('bgm'),btn=document.getElementById('musicBtn'),started=false;
+  var audio=document.getElementById('bgm'),btn=document.getElementById('musicBtn'),
+      started=false,userPaused=false;
   audio.volume=0.75;
   audio.addEventListener('canplay',function(){btn.style.display='block';});
   var srcs=audio.querySelectorAll('source');
   srcs[srcs.length-1].addEventListener('error',function(){btn.style.display='none';});
   audio.addEventListener('play',function(){btn.classList.add('playing');btn.classList.remove('paused');btn.textContent='🎵';});
   audio.addEventListener('pause',function(){btn.classList.remove('playing');btn.classList.add('paused');btn.textContent='🔇';});
+  function tryPlay(){
+    if(!started||userPaused||!audio.paused) return;
+    var p=audio.play();
+    if(p&&p.catch){p.catch(function(){});}
+  }
   btn.addEventListener('click',function(e){e.stopPropagation();
-    if(audio.paused){audio.play().catch(function(){});}else{audio.pause();}});
+    if(audio.paused){userPaused=false;var p=audio.play();if(p&&p.catch){p.catch(function(){});}}
+    else{userPaused=true;audio.pause();}});
   document.getElementById('startBtn').addEventListener('click',function(){
     go('gallery');
-    if(!started){started=true;audio.play().catch(function(){});}
+    if(!started){started=true;userPaused=false;audio.load();tryPlay();}
   });
+  /* 手机浏览器(含微信内置浏览器)常拦截程序化播放,用后续的真实手势再试一次 */
+  ['touchend','pointerdown'].forEach(function(ev){
+    document.addEventListener(ev,function(){tryPlay();},{passive:true});
+  });
+  /* 微信内置浏览器专用:桥接就绪后再试 */
+  document.addEventListener('WeixinJSBridgeReady',function(){tryPlay();});
 })();
 
 newRound();
