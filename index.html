@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>我们俩的月亮 · 给卢慧</title>
+<style>
+  :root{
+    --bg0:#060a1c; --bg1:#0c1330; --bg2:#131c44;
+    --ink:#f3ecdc; --ink-dim:#b9c0d8; --ink-faint:#7d86a3;
+    --gold:#e8c97a; --gold-soft:rgba(232,201,122,.35);
+    --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.12);
+    --serif:"Songti SC","STSong","Noto Serif CJK SC","Noto Serif SC",serif;
+    --sans:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; color:var(--ink); font-family:var(--sans);
+    background:linear-gradient(180deg,var(--bg0) 0%,var(--bg1) 45%,var(--bg2) 100%);
+    min-height:100svh; overflow-x:hidden;
+  }
+  #stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
+  section{position:relative; z-index:1; min-height:100svh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:64px 22px 56px; text-align:center;}
+  .kicker{font-size:12px; letter-spacing:.5em; text-indent:.5em; color:var(--ink-faint); margin-bottom:18px;}
+  h1,h2{font-family:var(--serif); font-weight:600; margin:0;}
+  .fade{opacity:0; transform:translateY(26px); transition:opacity .9s ease, transform .9s ease;}
+  .fade.vis{opacity:1; transform:none;}
+
+  /* ---------- cover ---------- */
+  .moon{
+    width:168px; height:168px; border-radius:50%; margin:0 auto 34px; position:relative;
+    background:radial-gradient(circle at 36% 34%, #fffbef 0%, #fdf3d0 34%, #f0dfae 62%, #d9c48d 100%);
+    box-shadow:0 0 42px 10px rgba(245,230,180,.35), 0 0 120px 34px rgba(245,230,180,.14);
+  }
+  .moon::after{content:""; position:absolute; inset:0; border-radius:50%;
+    background:
+      radial-gradient(circle at 62% 58%, rgba(190,165,120,.35) 0 9%, transparent 10%),
+      radial-gradient(circle at 44% 66%, rgba(190,165,120,.30) 0 6%, transparent 7%),
+      radial-gradient(circle at 70% 34%, rgba(190,165,120,.28) 0 5%, transparent 6%),
+      radial-gradient(circle at 34% 46%, rgba(190,165,120,.22) 0 4%, transparent 5%);}
+  #cover h1{font-size:44px; letter-spacing:.14em; text-indent:.14em; margin-bottom:16px;
+    text-shadow:0 2px 30px rgba(232,201,122,.25);}
+  #cover .sub{color:var(--ink-dim); font-size:15px; letter-spacing:.28em; text-indent:.28em; margin-bottom:44px;}
+  .btn{
+    appearance:none; border:1px solid var(--gold-soft); color:var(--ink);
+    background:rgba(232,201,122,.10); border-radius:999px;
+    padding:15px 44px; font-size:16px; letter-spacing:.2em; text-indent:.2em;
+    font-family:var(--sans); cursor:pointer; transition:all .25s ease;
+  }
+  .btn:active{transform:scale(.96); background:rgba(232,201,122,.22);}
+  .hint{margin-top:26px; font-size:12px; color:var(--ink-faint); letter-spacing:.2em;}
+
+  /* ---------- gallery ---------- */
+  .g-head{margin-bottom:8px;}
+  .g-head h2{font-size:26px; letter-spacing:.24em; text-indent:.24em; margin-bottom:10px;}
+  .g-head p{color:var(--ink-dim); font-size:13px; letter-spacing:.12em; margin:0 0 26px;}
+  .frame{width:100%; max-width:420px; overflow:hidden; border-radius:18px; position:relative;
+    border:1px solid var(--line); box-shadow:0 18px 60px rgba(0,0,0,.45); touch-action:pan-y;}
+  .track{display:flex; transition:transform .45s cubic-bezier(.22,.8,.3,1);}
+  .slide{min-width:100%; position:relative; background:#0a0f26;}
+  .slide img{width:100%; display:block; aspect-ratio:3/4; object-fit:cover;}
+  .slide.wide img{aspect-ratio:4/3;}
+  .cap{position:absolute; left:0; right:0; bottom:0; padding:34px 18px 16px; text-align:left;
+    background:linear-gradient(180deg,transparent,rgba(4,7,20,.82));}
+  .cap .when{font-size:12px; letter-spacing:.3em; color:var(--gold); margin-bottom:6px;}
+  .cap .what{font-size:15px; color:var(--ink); letter-spacing:.08em;}
+  .g-nav{display:flex; align-items:center; gap:22px; margin-top:22px;}
+  .arrow{width:46px; height:46px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); color:var(--ink); font-size:20px; cursor:pointer;}
+  .arrow:active{transform:scale(.93);}
+  .count{font-size:13px; color:var(--ink-dim); letter-spacing:.2em; min-width:76px;}
+  .pbar{width:100%; max-width:420px; height:3px; border-radius:2px; background:rgba(255,255,255,.12);
+    margin-top:18px; overflow:hidden;}
+  .pbar i{display:block; height:100%; width:0; border-radius:2px;
+    background:linear-gradient(90deg,var(--gold),#f6e3ae); transition:width .4s ease;}
+
+  /* ---------- game ---------- */
+  #game h2{font-size:26px; letter-spacing:.24em; text-indent:.24em; margin-bottom:10px;}
+  #game .rule{color:var(--ink-dim); font-size:13px; letter-spacing:.1em; margin:0 0 24px; line-height:1.9;}
+  .qcard{width:100%; max-width:420px; background:var(--card); border:1px solid var(--line);
+    border-radius:20px; padding:18px 18px 22px; box-shadow:0 18px 60px rgba(0,0,0,.4);}
+  .qcard img{width:100%; border-radius:12px; display:block; aspect-ratio:4/3; object-fit:cover;}
+  .q-no{font-size:12px; letter-spacing:.34em; text-indent:.34em; color:var(--ink-faint); margin:16px 0 4px;}
+  .q-ask{font-family:var(--serif); font-size:19px; margin:0 0 18px; letter-spacing:.06em;}
+  .opts{display:flex; flex-direction:column; gap:12px;}
+  .opt{appearance:none; border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--ink);
+    border-radius:14px; padding:15px; font-size:16px; letter-spacing:.24em; text-indent:.24em;
+    font-family:var(--sans); cursor:pointer; transition:all .25s ease;}
+  .opt:active{transform:scale(.97);}
+  .opt.right{border-color:var(--gold); background:rgba(232,201,122,.16);
+    box-shadow:0 0 24px var(--gold-soft);}
+  .opt.wrong{opacity:.35;}
+  .opt:disabled{cursor:default;}
+  .reveal{margin-top:16px; font-size:13px; color:var(--ink-dim); letter-spacing:.08em; line-height:2;
+    min-height:52px;}
+  .reveal b{color:var(--gold); font-weight:600;}
+  .nextrow{margin-top:6px; min-height:56px;}
+  #game .score-line{font-size:13px; color:var(--ink-faint); letter-spacing:.24em; margin-top:18px;}
+  .final{padding:10px 0 4px;}
+  .final .big{font-family:var(--serif); font-size:30px; margin:6px 0 12px;}
+  .final p{color:var(--ink-dim); font-size:14px; line-height:2.1; letter-spacing:.06em; margin:0 0 26px;}
+
+  /* ---------- letter ---------- */
+  #letter h2{font-size:26px; letter-spacing:.24em; text-indent:.24em; margin-bottom:26px;}
+  .paper{width:100%; max-width:420px; text-align:left; position:relative;
+    background:linear-gradient(180deg,#f7f1e3,#efe6d2); color:#3d3428;
+    border-radius:6px; padding:38px 30px 34px; box-shadow:0 24px 80px rgba(0,0,0,.5);
+    font-family:var(--serif);}
+  .paper::before{content:""; position:absolute; inset:10px; border:1px solid rgba(120,100,70,.25);
+    border-radius:3px; pointer-events:none;}
+  .paper p{font-size:16px; line-height:2.15; margin:0 0 1.1em; letter-spacing:.04em;}
+  .paper .to{font-size:17px; margin-bottom:1.4em;}
+  .paper .sign{text-align:right; margin:1.6em 0 0; font-size:16px;}
+  .locked{width:100%; max-width:420px; border:1px dashed var(--line); border-radius:20px;
+    padding:44px 26px; color:var(--ink-faint); font-size:14px; letter-spacing:.14em; line-height:2.2;}
+  .locked .lk{font-size:30px; display:block; margin-bottom:12px;}
+  .tail{margin-top:44px; color:var(--ink-faint); font-size:12px; letter-spacing:.4em; text-indent:.4em;}
+  .replay{margin-top:18px; background:none; border:none; color:var(--ink-faint); font-size:12px;
+    letter-spacing:.3em; text-decoration:underline; text-underline-offset:5px; cursor:pointer;
+    font-family:var(--sans);}
+
+  /* ---------- music ---------- */
+  #musicBtn{position:fixed; right:18px; bottom:22px; z-index:60; width:52px; height:52px;
+    border-radius:50%; border:1px solid var(--gold-soft); background:rgba(10,14,26,.72);
+    color:var(--ink); font-size:22px; cursor:pointer; backdrop-filter:blur(6px);
+    box-shadow:0 4px 18px rgba(0,0,0,.45);}
+  #musicBtn.playing{animation:pulse 2.6s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 4px 18px rgba(0,0,0,.45);}
+    50%{box-shadow:0 4px 26px var(--gold-soft);}}
+  #musicBtn.paused{opacity:.55;}
+  .credit{margin-top:26px; font-size:10px; color:var(--ink-faint); letter-spacing:.18em; opacity:.75;}
+
+  /* ---------- viewer ---------- */
+  #viewer{position:fixed; inset:0; z-index:100; display:none; flex-direction:column;
+    align-items:center; justify-content:center; background:rgba(2,4,12,.94); cursor:pointer;}
+  #viewer.open{display:flex;}
+  #viewerImg{max-width:100vw; max-height:80vh; object-fit:contain;}
+  .viewer-cap{margin-top:14px; text-align:center;}
+  .viewer-cap .when{font-size:12px; letter-spacing:.3em; color:var(--gold); margin-bottom:6px;}
+  .viewer-cap .what{font-size:15px; color:var(--ink); letter-spacing:.08em;}
+  .viewer-x{margin-top:18px; font-size:11px; color:var(--ink-faint); letter-spacing:.3em;}
+
+  /* ---------- lock ---------- */
+  #lock{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--bg0) 0%,var(--bg1) 60%,var(--bg2) 100%); padding:24px;}
+  #lock.hide{display:none;}
+  .lock-box{width:100%; max-width:340px; text-align:center;}
+  .moon.mini{width:84px; height:84px; margin:0 auto 26px;}
+  .lock-title{font-family:var(--serif); font-size:28px; letter-spacing:.2em; text-indent:.2em; margin-bottom:14px;}
+  .lock-sub{color:var(--ink-dim); font-size:13px; line-height:2.1; letter-spacing:.1em; margin:0 0 24px;}
+  #lockInput{width:100%; padding:15px 18px; border-radius:14px; border:1px solid var(--line);
+    background:rgba(255,255,255,.06); color:var(--ink); font-size:17px; letter-spacing:.28em; text-indent:.28em; text-align:center;
+    font-family:var(--sans); outline:none; margin-bottom:16px;}
+  #lockInput:focus{border-color:var(--gold-soft);}
+  #lockBtn{width:100%;}
+  .lock-err{display:none; color:#e08a8a; font-size:13px; letter-spacing:.14em; margin:14px 0 0;}
+  .lock-err.show{display:block;}
+  .shake{animation:shake .4s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+</style>
+</head>
+<body>
+<audio id="bgm" loop preload="auto">
+  <source src="music/bgm.mp3" type="audio/mpeg">
+  <source src="music/default.mp3" type="audio/mpeg">
+</audio>
+<button id="musicBtn" aria-label="音乐开关" style="display:none">🎵</button>
+<canvas id="stars"></canvas>
+<div id="viewer"><img id="viewerImg" alt="放大查看"><div class="viewer-cap" id="viewerCap"></div><div class="viewer-x">点击任意处关闭</div></div>
+<div id="lock">
+  <div class="lock-box">
+    <div class="moon mini"></div>
+    <div class="lock-title">我们俩的月亮</div>
+    <p class="lock-sub">这是宁可藏给卢慧的小秘密 🔒<br>输入密码才能打开</p>
+    <input id="lockInput" type="password" placeholder="请输入密码" autocomplete="off">
+    <button class="btn" id="lockBtn">开门 →</button>
+    <p class="lock-err" id="lockErr">密码不对，再想想？</p>
+  </div>
+</div>
+
+<!-- 封面 -->
+<section id="cover">
+  <div class="fade vis">
+    <div class="moon"></div>
+    <div class="kicker">A LITTLE PAGE, JUST FOR YOU</div>
+    <h1>我们俩的月亮</h1>
+    <div class="sub">给 卢 慧</div>
+    <button class="btn" id="startBtn">点我开始</button>
+    <div class="hint">建议在安静的晚上打开 🌙</div>
+  </div>
+</section>
+
+<!-- 照片 -->
+<section id="gallery">
+  <div class="g-head fade">
+    <div class="kicker">CHAPTER ONE</div>
+    <h2>我们的照片</h2>
+    <p>左右滑动，一张一张慢慢看</p>
+  </div>
+  <div class="frame fade" id="frame">
+    <div class="track" id="track"></div>
+  </div>
+  <div class="g-nav fade">
+    <button class="arrow" id="prev" aria-label="上一张">‹</button>
+    <div class="count" id="count">1 / 22</div>
+    <button class="arrow" id="next" aria-label="下一张">›</button>
+  </div>
+  <div class="pbar fade"><i id="pbarFill"></i></div>
+  <div style="margin-top:34px" class="fade">
+    <button class="btn" onclick="go('game')">继续 →</button>
+  </div>
+</section>
+
+<!-- 小游戏 -->
+<section id="game">
+  <div class="fade" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+    <div class="kicker">CHAPTER TWO</div>
+    <h2>猜猜这是哪里</h2>
+    <p class="rule">下面每张照片都是我们去过的地方<br>看看你还记不记得 · 共 10 题</p>
+    <div class="qcard" id="qcard">
+      <img id="qimg" src="" alt="猜地点的照片">
+      <div class="q-no" id="qno">第 1 题</div>
+      <p class="q-ask">这张照片，是在哪里拍的？</p>
+      <div class="opts" id="opts"></div>
+      <div class="reveal" id="reveal"></div>
+      <div class="nextrow" id="nextrow"></div>
+    </div>
+    <div class="score-line" id="scoreline">已答对 0 题</div>
+  </div>
+</section>
+
+<!-- 信 -->
+<section id="letter">
+  <div class="fade" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+    <div class="kicker">CHAPTER THREE</div>
+    <h2>最后，有封信给你</h2>
+    <div class="locked" id="locked">
+      <span class="lk">🔒</span>
+      这封信被月亮藏起来了<br>玩完上面的小游戏，它就会出现
+    </div>
+    <div class="paper" id="paper" style="display:none">
+      <p class="to">卢慧：</p>
+      <p>这100张照片，是我从我们这么多年的相册里，一张一张挑出来的。</p>
+      <p>最早的一张，是 2004 年 6 月 26 日，石头拱门前，照片右下角还打着红色的日期戳。那时候的我们，都还很年轻。</p>
+      <p>后来有了北京的宫殿和清华园，有了北海道的雪夜，有了班夫的湖水，有了南京、上海、英国、百色、沈阳……还有最多的，深圳——家里的沙发和阳台，绿道，咖啡馆，海边，摩天轮前。</p>
+      <p>最近的一张，是 2026 年 8 月，上海。</p>
+      <p>2004—2026，100 张。其实我们一起的时刻，远比这100张多得多。做这个小网页的时候，我一张一张看过去，才发现时间真的都留在了照片里。</p>
+      <p>前面的小游戏，你肯定都答得出来——那些地方，你都记得。</p>
+      <p>月亮只有一个。不管我们在哪个城市，抬起头，看到的都是同一轮。</p>
+      <p>谢谢你一直都在。</p>
+      <p class="sign">宁可<br><span style="font-size:13px;color:#8a7a5c">2026 年 9 月</span></p>
+    </div>
+    <div class="tail">月亮会一直都在</div>
+    <button class="replay" onclick="go('cover')">↺ 再看一遍</button>
+    <div class="credit">背景音乐 · There is Romance – Kevin MacLeod (CC BY 4.0)</div>
+  </div>
+</section>
+
+<script>
+/* ---------- 密码锁（在这里改密码） ---------- */
+var PAGE_PASSWORD='moon';
+(function(){
+  var lock=document.getElementById('lock'),input=document.getElementById('lockInput'),
+      err=document.getElementById('lockErr');
+  if(sessionStorage.getItem('moon_unlocked')==='1'){lock.classList.add('hide');return;}
+  function tryUnlock(){
+    if(input.value===PAGE_PASSWORD){
+      sessionStorage.setItem('moon_unlocked','1');
+      lock.classList.add('hide');
+    }else{
+      err.classList.add('show');
+      input.classList.remove('shake');void input.offsetWidth;input.classList.add('shake');
+      input.value='';input.focus();
+    }
+  }
+  document.getElementById('lockBtn').addEventListener('click',tryUnlock);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')tryUnlock();});
+  setTimeout(function(){input.focus();},500);
+})();
+
+/* ---------- 星空 ---------- */
+(function(){
+  var c=document.getElementById('stars'),x=c.getContext('2d'),ss=[];
+  function rs(){c.width=innerWidth;c.height=innerHeight;
+    ss=[];for(var i=0;i<130;i++)ss.push({x:Math.random()*c.width,y:Math.random()*c.height,
+      r:Math.random()*1.4+.3,p:Math.random()*Math.PI*2,s:.4+Math.random()*1.2});}
+  rs();addEventListener('resize',rs);
+  (function tw(t){x.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<ss.length;i++){var s=ss[i],a=.35+.65*Math.abs(Math.sin(t/1000*s.s+s.p));
+      x.globalAlpha=a;x.fillStyle='#dfe6ff';x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill();}
+    x.globalAlpha=1;requestAnimationFrame(tw);})(0);
+})();
+
+/* ---------- 通用 ---------- */
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){
+  if(e.isIntersecting)e.target.classList.add('vis');});},{threshold:.18});
+document.querySelectorAll('.fade').forEach(function(el){io.observe(el);});
+
+/* ---------- 照片展示 ---------- */
+//__PHOTOS_START__
+var PHOTOS=[
+  {src:'photos/p001.jpg?v3',when:'2004年6月 · 26日 · 北京 · 宫殿前',what:'北京 · 宫殿前',wide:true},
+  {src:'photos/p002.jpg?v3',when:'2004年6月 · 26日 · 石头拱门',what:'石头拱门',wide:true},
+  {src:'photos/p003.jpg?v3',when:'2004年7月 · 13日 · 清华园 · 毕业',what:'清华园 · 毕业',wide:true},
+  {src:'photos/p004.jpg?v3',when:'2004年7月 · 13日 · 毕业 · 单车',what:'毕业 · 单车',wide:true},
+  {src:'photos/p005.jpg?v3',when:'2004年7月 · 13日 · 逸夫馆 · 毕业',what:'逸夫馆 · 毕业',wide:true},
+  {src:'photos/p006.jpg?v3',when:'2008年12月 · 14日 · 圣诞树前 · 家庭合影',what:'圣诞树前 · 家庭合影',wide:true},
+  {src:'photos/p007.jpg?v3',when:'2012年5月 · 16日 · 家中 · 捧花',what:'家中 · 捧花',wide:false},
+  {src:'photos/p008.jpg?v3',when:'2012年9月 · 30日 · 阳台 · 家庭合影',what:'阳台 · 家庭合影',wide:true},
+  {src:'photos/p009.jpg?v3',when:'2015年2月 · 25日 · 家中',what:'家中',wide:true},
+  {src:'photos/p010.jpg?v3',when:'2015年3月 · 28日 · 海滩',what:'海滩',wide:true},
+  {src:'photos/p011.jpg?v3',when:'2015年3月 · 28日 · 沙滩 · 情侣衫',what:'沙滩 · 情侣衫',wide:true},
+  {src:'photos/p012.jpg?v3',when:'2015年5月 · 27日 · 车厢内 · 家庭合影',what:'车厢内 · 家庭合影',wide:true},
+  {src:'photos/p013.jpg?v3',when:'2015年7月 · 25日 · 寺庙公园',what:'寺庙公园',wide:true},
+  {src:'photos/p014.jpg?v3',when:'2015年8月 · 17日 · 森林瀑布',what:'森林瀑布',wide:true},
+  {src:'photos/p015.jpg?v3',when:'2016年2月 · 7日 · 酒店 · 家庭自拍',what:'酒店 · 家庭自拍',wide:true},
+  {src:'photos/p016.jpg?v3',when:'2016年2月 · 12日 · 彩色穹顶 · 家庭自拍',what:'彩色穹顶 · 家庭自拍',wide:true},
+  {src:'photos/p017.jpg?v3',when:'2016年2月 · 13日 · 夕阳码头',what:'夕阳码头',wide:true},
+  {src:'photos/p018.jpg?v3',when:'2016年2月 · 14日 · 情人节 · 海滩',what:'情人节 · 海滩',wide:true},
+  {src:'photos/p019.jpg?v3',when:'2016年7月 · 23日 · 湖畔木栈道 · 家庭自拍',what:'湖畔木栈道 · 家庭自拍',wide:true},
+  {src:'photos/p020.jpg?v3',when:'2016年7月 · 24日 · 演出场馆',what:'演出场馆',wide:true},
+  {src:'photos/p021.jpg?v3',when:'2016年8月 · 11日 · 餐厅',what:'餐厅',wide:true},
+  {src:'photos/p022.jpg?v3',when:'2016年9月 · 24日 · 演唱会',what:'演唱会',wide:true},
+  {src:'photos/p023.jpg?v3',when:'2017年4月 · 14日 · 林荫道',what:'林荫道',wide:false},
+  {src:'photos/p024.jpg?v3',when:'2017年7月 · 22日 · 餐厅',what:'餐厅',wide:true},
+  {src:'photos/p025.jpg?v3',when:'2017年8月 · 4日 · 石桥 · 家庭合影',what:'石桥 · 家庭合影',wide:false},
+  {src:'photos/p026.jpg?v3',when:'2017年10月 · 6日 · 山间稻田',what:'山间稻田',wide:true},
+  {src:'photos/p027.jpg?v3',when:'2017年10月 · 6日 · 稻田木栈道',what:'稻田木栈道',wide:true},
+  {src:'photos/p028.jpg?v3',when:'2017年11月 · 5日 · 家中',what:'家中',wide:false},
+  {src:'photos/p029.jpg?v3',when:'2017年12月 · 24日 · 圣诞节 · 家庭合影',what:'圣诞节 · 家庭合影',wide:true},
+  {src:'photos/p030.jpg?v3',when:'2018年2月 · 17日 · 日本 · 餐厅',what:'日本 · 餐厅',wide:false},
+  {src:'photos/p031.jpg?v3',when:'2018年2月 · 18日 · 北海道 · 雪地家庭合影',what:'北海道 · 雪地家庭合影',wide:false},
+  {src:'photos/p032.jpg?v3',when:'2018年2月 · 19日 · 函馆 · 雪夜',what:'函馆 · 雪夜',wide:true},
+  {src:'photos/p033.jpg?v3',when:'2018年2月 · 19日 · 函馆山顶 · 家庭合影',what:'函馆山顶 · 家庭合影',wide:true},
+  {src:'photos/p034.jpg?v3',when:'2019年2月 · 22日 · 深圳 · 家中',what:'深圳 · 家中',wide:true},
+  {src:'photos/p035.jpg?v3',when:'2019年3月 · 17日 · 深圳 · 绿道',what:'深圳 · 绿道',wide:false},
+  {src:'photos/p036.jpg?v3',when:'2019年5月 · 3日 · 演唱会',what:'演唱会',wide:true},
+  {src:'photos/p037.jpg?v3',when:'2019年5月 · 3日 · 演唱会场外 · 家庭自拍',what:'演唱会场外 · 家庭自拍',wide:true},
+  {src:'photos/p038.jpg?v3',when:'2019年5月 · 12日 · 深圳 · 家中阳台',what:'深圳 · 家中阳台',wide:true},
+  {src:'photos/p039.jpg?v3',when:'2019年5月 · 12日 · 阳台 · 家庭合影',what:'阳台 · 家庭合影',wide:true},
+  {src:'photos/p040.jpg?v3',when:'2019年5月 · 16日 · 深圳 · 家中捧花',what:'深圳 · 家中捧花',wide:false},
+  {src:'photos/p041.jpg?v3',when:'2019年5月 · 26日 · 餐厅',what:'餐厅',wide:true},
+  {src:'photos/p042.jpg?v3',when:'2019年7月 · 21日 · 飞机舱内',what:'飞机舱内',wide:false},
+  {src:'photos/p043.jpg?v3',when:'2019年7月 · 26日 · 班夫 · 弓湖',what:'班夫 · 弓湖',wide:true},
+  {src:'photos/p044.jpg?v3',when:'2019年7月 · 26日 · 班夫国家公园',what:'班夫国家公园',wide:false},
+  {src:'photos/p045.jpg?v3',when:'2019年7月 · 28日 · 贾斯珀 · 游湖',what:'贾斯珀 · 游湖',wide:true},
+  {src:'photos/p046.jpg?v3',when:'2019年11月 · 2日 · 观光车',what:'观光车',wide:true},
+  {src:'photos/p047.jpg?v3',when:'2019年11月 · 2日 · 旋转木马',what:'旋转木马',wide:true},
+  {src:'photos/p048.jpg?v3',when:'2020年1月 · 23日 · 餐厅',what:'餐厅',wide:false},
+  {src:'photos/p049.jpg?v3',when:'2020年3月 · 21日 · 海边岩石',what:'海边岩石',wide:true},
+  {src:'photos/p050.jpg?v3',when:'2020年4月 · 12日 · 公园长椅 · 家庭合影',what:'公园长椅 · 家庭合影',wide:true},
+  {src:'photos/p051.jpg?v3',when:'2020年5月 · 16日 · 夜晚自拍',what:'夜晚自拍',wide:true},
+  {src:'photos/p052.jpg?v3',when:'2020年8月 · 22日 · 家中 · 书架前',what:'家中 · 书架前',wide:true},
+  {src:'photos/p053.jpg?v3',when:'2020年10月 · 1日 · 三亚 · 南海观音家庭合影',what:'三亚 · 南海观音家庭合影',wide:false},
+  {src:'photos/p054.jpg?v3',when:'2020年10月 · 2日 · 山顶餐厅 · 夜景',what:'山顶餐厅 · 夜景',wide:true},
+  {src:'photos/p055.jpg?v3',when:'2020年10月 · 4日 · 度假村草坪',what:'度假村草坪',wide:false},
+  {src:'photos/p056.jpg?v3',when:'2020年10月 · 6日 · 草坪棕榈',what:'草坪棕榈',wide:true},
+  {src:'photos/p057.jpg?v3',when:'2021年2月 · 15日 · 灯会夜景',what:'灯会夜景',wide:true},
+  {src:'photos/p058.jpg?v3',when:'2021年3月 · 7日 · 灯塔前',what:'灯塔前',wide:false},
+  {src:'photos/p059.jpg?v3',when:'2021年5月 · 2日 · 露营',what:'露营',wide:true},
+  {src:'photos/p060.jpg?v3',when:'2022年1月 · 2日 · 车内自拍',what:'车内自拍',wide:true},
+  {src:'photos/p061.jpg?v3',when:'2022年1月 · 15日 · 城市夜景',what:'城市夜景',wide:true},
+  {src:'photos/p062.jpg?v3',when:'2022年1月 · 31日 · 春节 · 家庭合影',what:'春节 · 家庭合影',wide:true},
+  {src:'photos/p063.jpg?v3',when:'2022年2月 · 25日 · 生日 · 家庭自拍',what:'生日 · 家庭自拍',wide:true},
+  {src:'photos/p064.jpg?v3',when:'2022年3月 · 6日 · 火锅店 · 家庭聚餐',what:'火锅店 · 家庭聚餐',wide:true},
+  {src:'photos/p065.jpg?v3',when:'2022年4月 · 9日 · 高层餐厅 · 夜景',what:'高层餐厅 · 夜景',wide:true},
+  {src:'photos/p066.jpg?v3',when:'2022年4月 · 9日 · 城市夜景',what:'城市夜景',wide:false},
+  {src:'photos/p067.jpg?v3',when:'2022年4月 · 23日 · 家中自拍',what:'家中自拍',wide:true},
+  {src:'photos/p068.jpg?v3',when:'2022年4月 · 25日 · 摩天轮前',what:'摩天轮前',wide:true},
+  {src:'photos/p069.jpg?v3',when:'2022年4月 · 30日 · 夜晚公园',what:'夜晚公园',wide:true},
+  {src:'photos/p070.jpg?v3',when:'2022年5月 · 16日 · 家中',what:'家中',wide:true},
+  {src:'photos/p071.jpg?v3',when:'2022年5月 · 20日 · 公园竹林',what:'公园竹林',wide:true},
+  {src:'photos/p072.jpg?v3',when:'2022年7月 · 2日 · 咖啡馆',what:'咖啡馆',wide:true},
+  {src:'photos/p073.jpg?v3',when:'2022年7月 · 3日 · 公园',what:'公园',wide:true},
+  {src:'photos/p074.jpg?v3',when:'2022年7月 · 23日 · 夕阳海边',what:'夕阳海边',wide:true},
+  {src:'photos/p075.jpg?v3',when:'2022年7月 · 23日 · 林荫道',what:'林荫道',wide:true},
+  {src:'photos/p076.jpg?v3',when:'2022年10月 · 2日 · 露营晚霞',what:'露营晚霞',wide:false},
+  {src:'photos/p077.jpg?v3',when:'2023年1月 · 22日 · 深圳 · 湖畔',what:'深圳 · 湖畔',wide:true},
+  {src:'photos/p078.jpg?v3',when:'2023年8月 · 12日 · 英国 · 田野干草堆',what:'英国 · 田野干草堆',wide:true},
+  {src:'photos/p079.jpg?v3',when:'2023年8月 · 14日 · 英国',what:'英国',wide:true},
+  {src:'photos/p080.jpg?v3',when:'2023年12月 · 23日 · 深圳',what:'深圳',wide:false},
+  {src:'photos/p081.jpg?v3',when:'2023年12月 · 27日 · 南京',what:'南京',wide:false},
+  {src:'photos/p082.jpg?v3',when:'2023年12月 · 28日 · 上海',what:'上海',wide:true},
+  {src:'photos/p083.jpg?v3',when:'2023年12月 · 30日 · 上海 · 外滩',what:'上海 · 外滩',wide:false},
+  {src:'photos/p084.jpg?v3',when:'2024年1月 · 17日 · 深圳 · 家中',what:'深圳 · 家中',wide:false},
+  {src:'photos/p085.jpg?v3',when:'2024年2月 · 8日 · 百色',what:'百色',wide:true},
+  {src:'photos/p086.jpg?v3',when:'2024年6月 · 7日 · 深圳',what:'深圳',wide:true},
+  {src:'photos/p087.jpg?v3',when:'2024年6月 · 30日 · 深圳',what:'深圳',wide:true},
+  {src:'photos/p088.jpg?v3',when:'2024年10月 · 6日 · 深圳',what:'深圳',wide:true},
+  {src:'photos/p089.jpg?v3',when:'2025年10月 · 6日 · 深圳',what:'深圳',wide:true},
+  {src:'photos/p090.jpg?v3',when:'2026年1月 · 21日 · 北京',what:'北京',wide:true},
+  {src:'photos/p091.jpg?v3',when:'2026年1月 · 23日 · 沈阳 · 雪',what:'沈阳 · 雪',wide:true},
+  {src:'photos/p092.jpg?v3',when:'2026年1月 · 23日 · 沈阳',what:'沈阳',wide:true},
+  {src:'photos/p093.jpg?v3',when:'2026年3月 · 14日 · 深圳 · 花墙',what:'深圳 · 花墙',wide:false},
+  {src:'photos/p094.jpg?v3',when:'2026年5月 · 1日 · 深圳 · 餐厅',what:'深圳 · 餐厅',wide:true},
+  {src:'photos/p095.jpg?v3',when:'2026年5月 · 2日 · 深圳 · 夜晚街头',what:'深圳 · 夜晚街头',wide:true},
+  {src:'photos/p096.jpg?v3',when:'2026年8月 · 1日 · 上海 · 餐厅',what:'上海 · 餐厅',wide:true},
+  {src:'photos/p097.jpg?v3',when:'2026年8月 · 2日 · 上海',what:'上海',wide:true},
+  {src:'photos/p098.jpg?v3',when:'2026年8月 · 2日 · 上海',what:'上海',wide:true},
+  {src:'photos/p099.jpg?v3',when:'2026年8月 · 2日 · 上海',what:'上海',wide:true},
+  {src:'photos/p100.jpg?v3',when:'我们俩的月亮',what:'我们俩的月亮',wide:false}
+];
+//__PHOTOS_END__
+var gi=0,track=document.getElementById('track'),pbarFill=document.getElementById('pbarFill');
+PHOTOS.forEach(function(p,i){
+  var d=document.createElement('div');d.className='slide'+(p.wide?' wide':'');
+  d.innerHTML='<img loading="lazy" src="'+p.src+'" alt="合影"><div class="cap"><div class="when">'+p.when+
+    '</div><div class="what">'+p.what+'</div></div>';
+  track.appendChild(d);
+});
+function show(i){
+  gi=(i+PHOTOS.length)%PHOTOS.length;
+  track.style.transform='translateX(-'+gi*100+'%)';
+  document.getElementById('count').textContent=(gi+1)+' / '+PHOTOS.length;
+  pbarFill.style.width=((gi+1)/PHOTOS.length*100)+'%';
+}
+show(0);
+document.getElementById('prev').onclick=function(){show(gi-1);};
+document.getElementById('next').onclick=function(){show(gi+1);};
+(function(){var f=document.getElementById('frame'),sx=0;
+  f.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+  f.addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx;
+    if(Math.abs(dx)>48)show(gi+(dx<0?1:-1));},{passive:true});})();
+
+/* ---------- 全屏查看 ---------- */
+var viewer=document.getElementById('viewer'),viewerImg=document.getElementById('viewerImg'),
+    viewerCap=document.getElementById('viewerCap');
+function openViewer(){
+  var p=PHOTOS[gi];
+  viewerImg.src=p.src;
+  viewerCap.innerHTML='<div class="when">'+p.when+'</div><div class="what">'+p.what+'</div>';
+  viewer.classList.add('open');
+}
+function closeViewer(){viewer.classList.remove('open');}
+viewer.addEventListener('click',closeViewer);
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeViewer();});
+(function(){var f=document.getElementById('frame'),sx=0,sy=0,moved=false;
+  f.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;moved=false;},{passive:true});
+  f.addEventListener('touchmove',function(e){
+    if(Math.abs(e.touches[0].clientX-sx)>10||Math.abs(e.touches[0].clientY-sy)>10)moved=true;},{passive:true});
+  f.addEventListener('touchend',function(e){if(!moved)openViewer();},{passive:true});
+  f.addEventListener('click',function(){openViewer();});
+})();
+
+/* ---------- 猜地点游戏 ---------- */
+//__QUIZ_START__
+var QUIZ_BANK=[
+  {src:'photos/p002.jpg?v3',answer:'北京',options:['北京','南京','西安','上海'],when:'2004年6月 · 北京 · 石头拱门'},
+  {src:'photos/p001.jpg?v3',answer:'北京',options:['北京','天津','武汉','重庆'],when:'2004年6月 · 北京 · 宫殿前'},
+  {src:'photos/p003.jpg?v3',answer:'北京',options:['北京','上海','广州','深圳'],when:'2004年7月 · 清华园 · 毕业'},
+  {src:'photos/p032.jpg?v3',answer:'日本北海道',options:['日本北海道','韩国首尔','中国东北','俄罗斯'],when:'2018年2月 · 函馆 · 雪夜'},
+  {src:'photos/p031.jpg?v3',answer:'日本北海道',options:['日本北海道','日本东京','日本大阪','日本京都'],when:'2018年2月 · 北海道 · 雪地'},
+  {src:'photos/p043.jpg?v3',answer:'加拿大班夫',options:['加拿大班夫','瑞士','新西兰','挪威'],when:'2019年7月 · 班夫 · 弓湖'},
+  {src:'photos/p045.jpg?v3',answer:'加拿大贾斯珀',options:['加拿大贾斯珀','加拿大班夫','美国黄石','冰岛'],when:'2019年7月 · 贾斯珀 · 游湖'},
+  {src:'photos/p077.jpg?v3',answer:'深圳',options:['深圳','广州','珠海','惠州'],when:'2023年1月 · 深圳 · 湖畔'},
+  {src:'photos/p078.jpg?v3',answer:'英国',options:['英国','爱尔兰','荷兰','丹麦'],when:'2023年8月 · 英国 · 田野'},
+  {src:'photos/p079.jpg?v3',answer:'英国',options:['英国','法国','德国','意大利'],when:'2023年8月 · 英国'},
+  {src:'photos/p081.jpg?v3',answer:'南京',options:['南京','苏州','杭州','无锡'],when:'2023年12月 · 南京'},
+  {src:'photos/p083.jpg?v3',answer:'上海',options:['上海','北京','深圳','广州'],when:'2023年12月 · 上海外滩'},
+  {src:'photos/p085.jpg?v3',answer:'百色',options:['百色','桂林','南宁','柳州'],when:'2024年2月 · 百色'},
+  {src:'photos/p088.jpg?v3',answer:'深圳',options:['深圳','广州','珠海','厦门'],when:'2024年10月 · 深圳'},
+  {src:'photos/p053.jpg?v3',answer:'三亚',options:['三亚','厦门','珠海','北海'],when:'2020年10月 · 三亚 · 南海观音'},
+  {src:'photos/p090.jpg?v3',answer:'北京',options:['北京','南京','西安','洛阳'],when:'2026年1月 · 北京'},
+  {src:'photos/p091.jpg?v3',answer:'沈阳',options:['沈阳','哈尔滨','长春','大连'],when:'2026年1月 · 沈阳 · 雪'},
+  {src:'photos/p093.jpg?v3',answer:'深圳',options:['深圳','上海','北京','杭州'],when:'2026年3月 · 深圳 · 花墙'},
+  {src:'photos/p097.jpg?v3',answer:'上海',options:['上海','北京','南京','杭州'],when:'2026年8月 · 上海'},
+  {src:'photos/p034.jpg?v3',answer:'深圳',options:['深圳','广州','东莞','佛山'],when:'2019年2月 · 深圳 · 家中'},
+  {src:'photos/p070.jpg?v3',answer:'深圳',options:['深圳','上海','北京','成都'],when:'2022年5月 · 家中'},
+  {src:'photos/p028.jpg?v3',answer:'深圳',options:['深圳','广州','香港','澳门'],when:'2017年11月 · 家中'}
+];
+//__QUIZ_END__
+var QUIZ=[],qi=0,score=0,answered=false;
+var qimg=document.getElementById('qimg'),qno=document.getElementById('qno'),
+    opts=document.getElementById('opts'),reveal=document.getElementById('reveal'),
+    nextrow=document.getElementById('nextrow');
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));
+  var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function newRound(){
+  QUIZ=shuffle(QUIZ_BANK.slice()).slice(0,10).map(function(q){
+    return {src:q.src,answer:q.answer,options:shuffle(q.options.slice()),when:q.when};});
+  qi=0;score=0;
+  document.getElementById('scoreline').textContent='已答对 0 题';
+  document.getElementById('qcard').innerHTML=
+    '<img id="qimg" src="" alt="猜地点的照片"><div class="q-no" id="qno"></div>'+
+    '<p class="q-ask">这张照片，是在哪里拍的？</p><div class="opts" id="opts"></div>'+
+    '<div class="reveal" id="reveal"></div><div class="nextrow" id="nextrow"></div>';
+  qimg=document.getElementById('qimg');qno=document.getElementById('qno');
+  opts=document.getElementById('opts');reveal=document.getElementById('reveal');
+  nextrow=document.getElementById('nextrow');
+  renderQ();
+}
+function renderQ(){
+  answered=false;var q=QUIZ[qi];
+  qimg.src=q.src;qno.textContent='第 '+(qi+1)+' 题 / 共 '+QUIZ.length+' 题';
+  reveal.innerHTML='';nextrow.innerHTML='';opts.innerHTML='';
+  q.options.forEach(function(o){
+    var b=document.createElement('button');b.className='opt';b.textContent=o;
+    b.onclick=function(){answer(b,o);};opts.appendChild(b);});
+}
+function answer(btn,pick){
+  if(answered)return;answered=true;var q=QUIZ[qi],ok=pick===q.answer;
+  opts.querySelectorAll('.opt').forEach(function(b){
+    b.disabled=true;
+    if(b.textContent===q.answer)b.classList.add('right');else b.classList.add('wrong');});
+  if(ok){score++;document.getElementById('scoreline').textContent='已答对 '+score+' 题';}
+  reveal.innerHTML=(ok?'答对啦 ✨':'没关系，答案是 <b>'+q.answer+'</b>')+
+    '<br>这张拍于 <b>'+q.when+'</b>';
+  var n=document.createElement('button');n.className='btn';
+  n.style.cssText='padding:12px 38px;font-size:14px;margin-top:4px;';
+  if(qi<QUIZ.length-1){n.textContent='下一题 →';n.onclick=function(){qi++;renderQ();};}
+  else{n.textContent='看看结果 →';n.onclick=finish;}
+  nextrow.appendChild(n);
+}
+function finish(){
+  var msg=score===QUIZ.length?'全对！这些地方，你果然都记得。<br>那接下来这封信，你也一定猜得到是谁写的。'
+    :score>=4?'很不错啦，这些回忆你都收得好好的。<br>下面这封信，是专门为你准备的。'
+    :'没关系，重要的是我们一起去过。<br>下面这封信，是专门为你准备的。';
+  document.getElementById('qcard').innerHTML=
+    '<div class="final"><div class="q-no">全部完成</div>'+
+    '<div class="big">你答对了 '+score+' / '+QUIZ.length+' 题</div>'+
+    '<p>'+msg+'</p>'+
+    '<button class="btn" onclick="go(\'letter\')">打开那封信 →</button><br>'+
+    '<button class="replay" onclick="newRound()">↺ 再玩一次（换 10 道新题）</button></div>';
+  document.getElementById('scoreline').textContent='';
+  document.getElementById('locked').style.display='none';
+  document.getElementById('paper').style.display='block';
+  io.observe(document.getElementById('paper'));
+  document.getElementById('paper').classList.add('vis');
+}
+/* ---------- 背景音乐 ---------- */
+(function(){
+  var audio=document.getElementById('bgm'),btn=document.getElementById('musicBtn'),started=false;
+  audio.volume=0.75;
+  audio.addEventListener('canplay',function(){btn.style.display='block';});
+  var srcs=audio.querySelectorAll('source');
+  srcs[srcs.length-1].addEventListener('error',function(){btn.style.display='none';});
+  audio.addEventListener('play',function(){btn.classList.add('playing');btn.classList.remove('paused');btn.textContent='🎵';});
+  audio.addEventListener('pause',function(){btn.classList.remove('playing');btn.classList.add('paused');btn.textContent='🔇';});
+  btn.addEventListener('click',function(e){e.stopPropagation();
+    if(audio.paused){audio.play().catch(function(){});}else{audio.pause();}});
+  document.getElementById('startBtn').addEventListener('click',function(){
+    go('gallery');
+    if(!started){started=true;audio.play().catch(function(){});}
+  });
+})();
+
+newRound();
+</script>
+</body>
+</html>
